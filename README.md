@@ -1,3 +1,4 @@
-# a simple physics simulation
+# A simple physics simulation
 
-### my first real project in javascript. it spawns 100 balls that bounce off the walls and ground of a box, click to restart the simulation
+### Here's my first real project in JS.
+It simulates 100 balls bouncing with real gravity and friction
