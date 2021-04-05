@@ -112,7 +112,24 @@ var mouse = {
   x: innerWidth / 2,
   y: innerHeight / 2
 };
-var colors = ['#2185C5', '#7ECEFD', '#FFF6E5', '#FF7F66']; // Event Listeners
+var colors = ['#2195C5', '#8ECEFD', '#FFD6E5', '#FF2F66'];
+var gravity = 1;
+var friction = .95; // Helper Functions
+
+function randomIntFromRange(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+function randomColor(colors) {
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+function distance(x1, y1, x2, y2) {
+  var xDist = x2 - x1;
+  var yDist = y2 - y1;
+  return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2));
+} // Event Listeners
+
 
 addEventListener('mousemove', function (event) {
   mouse.x = event.clientX;
@@ -120,56 +137,84 @@ addEventListener('mousemove', function (event) {
 });
 addEventListener('resize', function () {
   canvas.width = innerWidth;
-  canvas.height = innerHeight;
+  canvas.height = innerHeight; //init()
+}); // Reset
+
+addEventListener('click', function () {
   init();
 }); // Objects
 
-var _Object = /*#__PURE__*/function () {
-  function Object(x, y, radius, color) {
-    _classCallCheck(this, Object);
+var Ball = /*#__PURE__*/function () {
+  function Ball(x, y, dx, dy, radius, color) {
+    _classCallCheck(this, Ball);
 
     this.x = x;
     this.y = y;
+    this.dx = dx;
+    this.dy = dy;
     this.radius = radius;
     this.color = color;
   }
 
-  _createClass(Object, [{
+  _createClass(Ball, [{
     key: "draw",
     value: function draw() {
       c.beginPath();
       c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
       c.fillStyle = this.color;
       c.fill();
+      c.stroke();
       c.closePath();
     }
   }, {
     key: "update",
     value: function update() {
+      if (this.y + this.radius + this.dy > canvas.height) {
+        // Floor collision
+        this.dy = -this.dy * friction;
+      } else {
+        this.dy += gravity; // console.log(this.dy);
+      }
+
+      if (this.x + this.radius + this.dx > canvas.width || this.x - this.radius - this.dx < 0) {
+        this.dx = -this.dx;
+      }
+
+      this.x += this.dx;
+      this.y += this.dy;
       this.draw();
     }
   }]);
 
-  return Object;
-}(); // Implementation
+  return Ball;
+}();
 
-
-var objects;
+var ball;
+var balls; // Implementation
 
 function init() {
-  objects = [];
+  balls = [];
 
-  for (var i = 0; i < 400; i++) {// objects.push()
-  }
+  for (var i = 0; i < 100; i++) {
+    var radius = randomIntFromRange(20, 40);
+    var x = randomIntFromRange(radius + 5, canvas.width - radius);
+    var y = randomIntFromRange(radius + 5, canvas.height - radius);
+    var dx = randomIntFromRange(-2, 2);
+    var dy = randomIntFromRange(-2, 2);
+    balls.push(new Ball(x, y, dx, dy, radius, randomColor(colors)));
+  } // ball = new Ball(canvas.width/2, canvas.height/2, 2, 30, 'red');
+  // console.log(ball);
+
 } // Animation Loop
 
 
 function animate() {
   requestAnimationFrame(animate);
-  c.clearRect(0, 0, canvas.width, canvas.height);
-  c.fillText('HTML CANVAS BOILERPLATE', mouse.x, mouse.y); // objects.forEach(object => {
-  //  object.update()
-  // })
+  c.clearRect(0, 0, canvas.width, canvas.height); // ball.update();
+
+  for (var i = 0; i < balls.length; i++) {
+    balls[i].update();
+  }
 }
 
 init();
